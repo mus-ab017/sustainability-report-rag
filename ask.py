@@ -2,14 +2,11 @@ import os
 from dotenv import load_dotenv
 from google import genai
 import chromadb
-from sentence_transformers import SentenceTransformer
 
 # --- Setup ---
 load_dotenv()
 api_key = os.getenv("sustainability_rag")
 client = genai.Client(api_key=api_key)
-
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 chroma_client = chromadb.PersistentClient(path="./chroma_data")
 collection = chroma_client.get_or_create_collection(name="sustainability_reports")
@@ -17,7 +14,12 @@ collection = chroma_client.get_or_create_collection(name="sustainability_reports
 
 def ask_question(question, n_results_per_company=8):
     companies = ["microsoft", "google", "apple"]
-    question_embedding = embedder.encode([question]).tolist()
+
+    result = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=[question]
+    )
+    question_embedding = [result.embeddings[0].values]
 
     all_chunks = []
     all_sources = []
