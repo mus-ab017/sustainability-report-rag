@@ -1,12 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.responses import FileResponse
+import os
 
 from ask import ask_question
 from specificity_scorer import score_text_specificity
 from extract_text import extract_text_from_pdf
 
 app = FastAPI(title="Sustainability Report RAG API")
+if not os.path.exists("./chroma_data"):
+    print("No existing database found — building it now (this may take a minute)...")
+    import build_database
 
 # Allow our frontend (running separately) to talk to this backend
 app.add_middleware(
@@ -46,3 +51,7 @@ def specificity():
 @app.get("/")
 def health_check():
     return {"status": "API is running"}
+
+@app.get("/app")
+def serve_frontend():
+    return FileResponse("frontend.html")
