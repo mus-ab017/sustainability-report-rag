@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sustainability Report Intelligence</title>
+<style>
+  :root {
+    --bg: #f7f9f8;
+    --surface: #ffffff;
+    --border: #e2e8e5;
+    --text: #1c2620;
+    --text-muted: #5c6b64;
+    --accent: #14532d;
+    --accent-light: #e8f3ec;
+    --teal: #0f766e;
+    --vague: #c2410c;
+    --specific: #0f766e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  opacity: 0.05;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path d="M100 20 C60 40, 40 80, 60 130 C80 170, 130 170, 150 130 C170 80, 140 40, 100 20 Z" fill="none" stroke="%2314532d" stroke-width="1.5"/><path d="M100 20 C100 70, 100 110, 100 170" stroke="%2314532d" stroke-width="1" fill="none"/></svg>');
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+  header {
+    padding: 48px 24px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    color: var(--accent);
+  }
+
+  .card .subtitle {
+    margin: 0 0 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .example-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid transparent;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  button {
+  margin-top: 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover:not(:disabled) { background: #0f3d21; }
+button:active:not(:disabled) { transform: scale(0.97); }
+button:disabled { background: #9aa79f; cursor: not-allowed; }
+
+textarea, .chip {
+  transition: all 0.15s ease;
+}
+
+  #answer-box {
+    margin-top: 20px;
+    padding: 18px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    display: none;
+  }
+
+  .loading {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 14px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+  .company-scores {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .score-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .score-card h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+  }
+
+  .score-number {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .bar-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 999px;
+    margin: 12px 0 8px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 999px;
+    transition: width 0.6s ease;
+  }
+
+  .score-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .examples-toggle {
+    font-size: 12px;
+    color: var(--teal);
+    cursor: pointer;
+    margin-top: 10px;
+    display: inline-block;
+  }
+
+  .examples-list {
+    display: none;
+    text-align: left;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .examples-list p {
+    margin: 6px 0;
+    padding-left: 10px;
+    border-left: 2px solid var(--vague);
+  }
+
+  #answer-box strong {
+  color: var(--accent);
+}
+
+#answer-box ul, #answer-box ol {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+
+#answer-box li {
+  margin-bottom: 6px;
+}
+
+#answer-box p {
+  margin: 0 0 12px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  animation: fadeInUp 0.5s ease both;
+}
+
+.card:nth-of-type(2) {
+  animation-delay: 0.1s;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>Sustainability Report Intelligence</h1>
+  <p>Ask questions across Microsoft, Google, and Apple's 2026 environmental reports — with claim-specificity analysis</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>Ask a question</h2>
+    <p class="subtitle">Try one of the examples below, or write your own</p>
+
+    <div class="example-chips">
+      <div class="chip" onclick="setQuestion(this)">What is Microsoft's carbon reduction target?</div>
+      <div class="chip" onclick="setQuestion(this)">Compare renewable energy commitments across all three companies</div>
+      <div class="chip" onclick="setQuestion(this)">How much water did Google replenish in 2025?</div>
+    </div>
+
+    <textarea id="question-input" placeholder="Type your question here..."></textarea>
+    <br>
+    <button id="ask-btn" onclick="askQuestion()">Ask</button>
+
+    <div class="loading" id="loading-text"><div class="spinner"></div><span>Thinking through the reports...</span></div>
+    <div id="answer-box"></div>
+  </div>
+
+  <div class="card">
+    <h2>Claim Specificity Dashboard</h2>
+    <p class="subtitle">What share of each company's sustainability claims are backed by a concrete number, date, or target — versus general commitment language?</p>
+
+    <div class="loading" id="specificity-loading"><div class="spinner"></div><span>Analyzing reports...</span></div>
+    <div class="company-scores" id="scores-container"></div>
+  </div>
+
+</main>
+
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+
+function setQuestion(el) {
+  document.getElementById("question-input").value = el.innerText;
+}
+
+async function askQuestion() {
+  const question = document.getElementById("question-input").value.trim();
+  if (!question) return;
+
+  const btn = document.getElementById("ask-btn");
+  const loading = document.getElementById("loading-text");
+  const answerBox = document.getElementById("answer-box");
+
+  btn.disabled = true;
+  loading.style.display = "flex";
+  answerBox.style.display = "none";
+
+  try {
+    const res = await fetch(`${API_BASE}/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
+    });
+    const data = await res.json();
+    answerBox.innerHTML = marked.parse(data.answer);
+    answerBox.style.display = "block";
+  } catch (err) {
+    answerBox.innerText = "Something went wrong. Make sure the backend server is running.";
+    answerBox.style.display = "block";
+  } finally {
+    btn.disabled = false;
+    loading.style.display = "none";
+  }
+}
+
+async function loadSpecificity() {
+  const container = document.getElementById("scores-container");
+  const loading = document.getElementById("specificity-loading");
+
+  loading.style.display = "flex";
+
+  try {
+    const res = await fetch(`${API_BASE}/specificity`);
+    const data = await res.json();
+
+    const companyNames = { microsoft: "Microsoft", google: "Google", apple: "Apple" };
+
+    container.innerHTML = Object.entries(data).map(([company, result]) => {
+      const pct = Math.round(result.specificity_score * 100);
+      let barColor = "var(--specific)"; // green, default
+        if (pct < 40) barColor = "#b91c1c";       // red
+        else if (pct < 65) barColor = "#b45309";  // amber
+      const vagueExamples = result.vague_examples.slice(0, 3)
+        .map(v => `<p>"${v.slice(0, 120)}${v.length > 120 ? '...' : ''}"</p>`).join("");
+
+      return `
+        <div class="score-card">
+          <h3>${companyNames[company] || company}</h3>
+          <div class="score-number">${pct}%</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${barColor}"></div></div>
+          <div class="score-detail">${result.specific_count} specific / ${result.vague_count} vague claims</div>
+          <span class="examples-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">
+            View vague examples
+          </span>
+          <div class="examples-list">${vagueExamples}</div>
+        </div>
+      `;
+    }).join("");
+
+  } catch (err) {
+    container.innerHTML = `<p style="color: var(--vague);">Could not load specificity data. Make sure the backend server is running.</p>`;
+  } finally {
+    loading.style.display = "none";
+  }
+}
+
+loadSpecificity();
+</script>
+
+</body>
+</html>
