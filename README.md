@@ -18,6 +18,24 @@ Built and tested on Microsoft, Google, and Apple's 2026 Environmental/Sustainabi
 
 Using a rule-based claim-specificity scorer built for this project, Microsoft (80%) and Apple (75%) show notably higher rates of quantified sustainability claims compared to Google (56%) — driven largely by AI-growth-related sustainability messaging that leans on general commitment language rather than measurable targets.
 
+## Evaluation
+
+To measure retrieval and answer quality beyond informal testing, I built a 15-question evaluation set covering four categories: single-company factual questions, cross-company comparisons, questions with no answer in the source data (to test refusal behavior), and open-ended questions requiring judgment.
+
+Each answer was first graded automatically by keyword matching, then manually reviewed against the source PDFs.
+
+| Category | Count | Result |
+|---|---|---|
+| Factual | 9 | 8/9 correct |
+| Comparison | 2 | 2/2 correct |
+| Refusal (out-of-scope) | 2 | 2/2 correctly declined |
+| Open-ended / judgment | 2 | 2/2 answered appropriately |
+| **Total** | **15** | **14/15 (93%)** |
+
+**The one miss, and what it revealed about the evaluation method itself:** the automated grader marked "What is Microsoft's goal for carbon by 2030?" as a pass because both expected keywords ("carbon negative" and "2030") appeared somewhere in the response — but on manual review, they weren't connected. The retrieved context surfaced "carbon negative" in one place and an unrelated "2030" supplier policy in another, and the system correctly declined to state a target it couldn't verify from what it retrieved, rather than guessing. This is a known instance of the retrieval limitation documented below (the exact chunk containing "Become carbon negative by 2030" was independently confirmed to exist in the source PDF, via `check_microsoft_target.py`, but didn't surface for this particular query).
+
+This also surfaced a real flaw in the evaluation script itself, not just the RAG system: keyword-matching can produce false positives when it checks for keyword *presence* without checking whether they're actually related in the answer. All 15 results were manually reviewed against the source PDFs to correct for this before reporting the final score.
+
 ## Tech stack
 
 - **Backend:** Python, FastAPI
