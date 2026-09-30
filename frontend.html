@@ -341,7 +341,7 @@ async function askQuestion() {
       body: JSON.stringify({ question })
     });
     const data = await res.json();
-    answerBox.innerHTML = marked.parse(data.answer);
+    answerBox.innerHTML = marked.parse(data.answer, { gfm: false });
     answerBox.style.display = "block";
   } catch (err) {
     answerBox.innerText = "Something went wrong. Make sure the backend server is running.";

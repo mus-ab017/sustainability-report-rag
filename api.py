@@ -32,8 +32,14 @@ def ask(payload: Question):
     return {"answer": answer}
 
 
+_specificity_cache = None
+
 @app.get("/specificity")
 def specificity():
+    global _specificity_cache
+    if _specificity_cache is not None:
+        return _specificity_cache
+
     companies = {
         "microsoft": "data/microsoft_2026.pdf",
         "google": "data/google_2026.pdf",
@@ -45,6 +51,7 @@ def specificity():
         text = extract_text_from_pdf(path)
         results[company] = score_text_specificity(text)
 
+    _specificity_cache = results
     return results
 
 
